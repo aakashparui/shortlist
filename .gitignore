@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+
+# secrets — never commit; see .env.local.example
+.env*.local
+
+# typescript incremental build cache
+*.tsbuildinfo
+
+# fetched job data and personal tracking state.
+# Uses data/* rather than data/ so the example below stays trackable —
+# git will not descend into a directory ignored with a trailing slash.
+data/*
+!data/searches.example.json
+
+# scheduled-run log
+*.log
+
+# os / editor cruft
+.DS_Store
+Thumbs.db
