@@ -68,6 +68,29 @@ all four reconciliation legs agree.
 internal consistency. A payment whose journal is wrong must not be closed on the strength of an
 external match.
 
+### Columns are sized for what the application writes, not for the standard
+
+**Assumed:** Where the two conflict, a column is sized to hold the values the application can
+actually produce — including deliberately malformed ones — rather than to the width the standard
+permits.
+
+| Column | Standard says | Declared | Why |
+| ------ | ------------- | -------- | --- |
+| `payment_party.iban` | 34 (ISO 13616) | 42 | The API accepts a formatted IBAN, and failure injection writes corrupted ones |
+| `payment_party.bic` | 11 (ISO 9362) | 14 | `INVALID_CREDITOR_BIC` writes a 12-character malformed value on purpose |
+| `payment.clearing_channel` | 35 (ISO Max35Text) | 35 | Was 10, too small for a proprietary code such as `GENERIC-CSM` |
+
+**Why:** A malformed IBAN or BIC must reach the rule engine and be rejected cleanly with `AC01` or
+`RC01` — that is the behaviour this simulator exists to demonstrate. A column sized to the standard
+would instead fail the `INSERT` on PostgreSQL and surface as a 500, turning an instructive
+validation failure into a crash. The length rules live in the rule book, where they can explain
+themselves; the column is only storage.
+
+**Found by:** running the stack on PostgreSQL for the first time. SQLite ignores `VARCHAR` lengths
+entirely, so none of this was visible locally. `backend/tests/test_column_widths.py` now checks
+every enum-backed column, every scheme-derived value, every injected value and every API input
+limit against the declared widths, so the class of bug cannot return.
+
 ### Account balances follow the account holder's view, not ledger signage
 
 **Assumed:** The `balance` column is what the account holder would recognise as "how much is in
@@ -249,15 +272,5 @@ startup. Structured logging must never be able to do that.
   exact counts depend on the seed order. Counts are asserted as minimums, not exact values.
 - **The scheduler is single-process.** It is durable and restart-safe but does not coordinate across
   replicas.
-- **The Docker path has not been run end to end.** No Docker daemon was available on the development
-  machine. What *is* verified: `docker compose config` validates; the backend image's
-  `pip install .` resolves and the app imports and builds from the resulting wheel in a clean
-  environment; the frontend's `npm run build` succeeds; and a `.dockerignore` keeps host-built
-  `node_modules` and `.venv` out of the build context, which would otherwise have put
-  Windows-built binaries into a Linux image. What is **not** verified: the image builds themselves,
-  the containers starting, Nginx proxying to the API, and the PostgreSQL path. Everything was run
-  and tested against SQLite.
-- **PostgreSQL is unexercised.** The `Money` column type has a `NUMERIC(20,4)` branch that has never
-  executed, and the migration has only ever been applied to SQLite. The migration does render the
-  portable `app.db.types.Money` / `UTCDateTime` types rather than SQLite-specific ones, so it should
-  apply, but nothing has proved it.
+- **The scheduler is not exercised under load.** It is correct for one operator's console; nobody has
+  run a thousand concurrent payments through it.

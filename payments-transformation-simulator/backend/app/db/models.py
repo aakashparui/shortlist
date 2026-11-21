@@ -156,7 +156,11 @@ class Payment(Base):
     category_purpose: Mapped[str | None] = mapped_column(String(10), default=None)
     service_level: Mapped[str | None] = mapped_column(String(10), default=None)
     local_instrument: Mapped[str | None] = mapped_column(String(35), default=None)
-    clearing_channel: Mapped[str | None] = mapped_column(String(10), default=None)
+    # ISO 20022 ClearingSystemIdentification3Choice/Prtry is Max35Text. The
+    # original String(10) was too small for a proprietary code such as
+    # "GENERIC-CSM" and only failed on PostgreSQL, because SQLite does not
+    # enforce VARCHAR lengths.
+    clearing_channel: Mapped[str | None] = mapped_column(String(35), default=None)
     charge_bearer: Mapped[str] = mapped_column(String(10), default="SLEV")
     priority: Mapped[str] = mapped_column(String(10), default="NORM")
 
@@ -242,8 +246,13 @@ class PaymentParty(Base):
     role: Mapped[str] = mapped_column(String(20))  # DEBTOR | CREDITOR | ULTIMATE_DEBTOR | ...
     name: Mapped[str] = mapped_column(String(140))
     account_identifier: Mapped[str] = mapped_column(String(40), default="")
-    iban: Mapped[str | None] = mapped_column(String(34), default=None)
-    bic: Mapped[str | None] = mapped_column(String(11), index=True, default=None)
+    # Deliberately wider than the standards allow (ISO 13616 caps an IBAN at 34
+    # and ISO 9362 a BIC at 11). Malformed values must reach the rule engine and
+    # be rejected with AC01 / RC01, which is the behaviour this simulator exists
+    # to show. A column sized to the standard would instead fail the insert on
+    # PostgreSQL and surface as a 500.
+    iban: Mapped[str | None] = mapped_column(String(42), default=None)
+    bic: Mapped[str | None] = mapped_column(String(14), index=True, default=None)
     bank_name: Mapped[str] = mapped_column(String(140), default="")
     country: Mapped[str] = mapped_column(String(2), default="")
     address_lines: Mapped[list] = mapped_column(default=list)

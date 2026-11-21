@@ -52,13 +52,15 @@ class PaymentCreate(ApiModel):
     requestedExecutionDate: date | None = None
     debtor: PartyInput
     creditor: PartyInput
-    remittanceInformation: str = Field(default="", max_length=500)
+    # Matches the column. Well above every scheme's limit (140), so the
+    # remittance-length rule still has room to fire before the database would.
+    remittanceInformation: str = Field(default="", max_length=240)
     remittanceStructured: dict[str, Any] = Field(default_factory=dict)
     purposeCode: str | None = Field(default=None, max_length=10)
     categoryPurpose: str | None = Field(default=None, max_length=10)
     serviceLevel: str | None = Field(default=None, max_length=10)
     localInstrument: str | None = Field(default=None, max_length=35)
-    clearingChannel: str | None = Field(default=None, max_length=10)
+    clearingChannel: str | None = Field(default=None, max_length=35)  # ISO Max35Text
     chargeBearer: str | None = Field(default=None, max_length=10)
     priority: str | None = Field(default=None, max_length=10)
     instructionId: str | None = Field(default=None, max_length=40)

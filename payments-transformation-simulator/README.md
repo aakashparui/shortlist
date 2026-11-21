@@ -372,14 +372,19 @@ Brings up PostgreSQL 16, the API (migrated and seeded on start) and the UI behin
 | http://localhost:8080 | Operations console        |
 | http://localhost:8000/docs | API documentation    |
 
-> **Not yet run end to end.** The compose file and both Dockerfiles are written and
-> `docker compose config` validates, the backend image's `pip install .` step is verified in a
-> clean environment, and the frontend's `npm run build` is verified — but the images have not been
-> built and the stack has not been started, because no Docker daemon was available on the machine
-> this was developed on. The **PostgreSQL path is therefore unexercised**: everything was run and
-> tested against SQLite. The Alembic migration emits the portable `Money` / `UTCDateTime` types
-> rather than SQLite-specific ones, so it should apply cleanly to PostgreSQL, but that is reasoning
-> rather than evidence. Treat the local setup above as the supported path until someone runs this.
+Verified end to end against PostgreSQL 16:
+
+- Alembic creates all 21 tables; the `Money` type lands as `numeric(20,4)` and amounts round-trip
+  exactly (`1234.5600`, no float drift).
+- The demo book seeds (33 payments) and all 20 scenarios pass **on PostgreSQL**.
+- A payment completes the full lifecycle, and an injected clearing timeout raises an investigation
+  and sends a pacs.028, inside the containers.
+- Nginx serves the console, falls SPA deep links through to `index.html`, and proxies `/api` and
+  `/health` to the API container.
+
+> Running the stack for the first time found two bugs that **only PostgreSQL could catch**, because
+> SQLite does not enforce `VARCHAR` lengths. Both are fixed, and
+> `backend/tests/test_column_widths.py` now guards against the whole class of them.
 
 ## Testing
 

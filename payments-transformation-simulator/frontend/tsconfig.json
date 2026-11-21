@@ -18,7 +18,10 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
     "noEmit": true,
-    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
+    // "node" is required by vite.config.ts, which uses node:path, process and
+    // __dirname. Without it the build fails anywhere there is no parent
+    // node_modules to borrow @types/node from.
+    "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] }
   },
