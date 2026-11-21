@@ -10,9 +10,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
 
 import app.db.types  # noqa: F401  - custom column types referenced below
+from alembic import op
 
 revision: str = '5927390ad5fd'
 down_revision: str | None = 'cbaf7fe08a64'

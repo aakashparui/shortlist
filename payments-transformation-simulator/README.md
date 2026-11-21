@@ -328,12 +328,24 @@ Open **http://localhost:5173**. The dev server proxies `/api` to the backend.
 | http://localhost:8000/redoc     | ReDoc                      |
 | http://localhost:8000/health    | Liveness and readiness     |
 
-Or use the start script, which launches both:
+Or use the start script, which creates the virtual environment, installs both sets of dependencies,
+waits for the API to finish seeding, launches the console, and stops both on `Ctrl+C`:
 
 ```bash
-./start.sh          # macOS / Linux
+./start.sh          # macOS / Linux, and Git Bash on Windows
 .\start.ps1         # Windows PowerShell
 ```
+
+Useful flags: `--reset` / `-Reset` drops the local SQLite database first; `PYTHON=...` /
+`-Python ...` selects an interpreter; `API_PORT` / `UI_PORT` and `-ApiPort` / `-UiPort` move the
+ports.
+
+> **On Windows, `python` on `PATH` is often not Python.** Windows ships App Execution Alias stubs for
+> `python` and `python3` that resolve like a real command but only print "Python was not found" and
+> exit. The start scripts detect this — they prove an interpreter by running it, and fall back to the
+> `py` launcher, which finds interpreters that are not on `PATH`. If you set up the backend by hand
+> instead, this is the first thing to check when `python -m venv .venv` produces a Microsoft Store
+> advertisement.
 
 ### Configuration
 

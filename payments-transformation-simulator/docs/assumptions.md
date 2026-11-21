@@ -91,6 +91,54 @@ entirely, so none of this was visible locally. `backend/tests/test_column_widths
 every enum-backed column, every scheme-derived value, every injected value and every API input
 limit against the declared widths, so the class of bug cannot return.
 
+### The start scripts prove an interpreter by running it, never by resolving a name
+
+**Assumed:** `python3` or `python` appearing on `PATH` says nothing about whether Python is
+installed.
+
+**Why:** Windows ships *App Execution Alias* stubs for both names. They resolve through `command -v`
+and `Get-Command`, then print "Python was not found; run without arguments to install from the
+Microsoft Store" and exit non-zero. The original scripts checked only that the name resolved, so on
+a machine with no Python on `PATH` the check passed and the script died two steps later with a
+Microsoft Store advertisement instead of its own "Python 3.11+ is required" message. The same probe
+also rejects an interpreter that is real but too old — an Anaconda 3.9 earlier on `PATH`, say.
+
+**How:** each candidate (`$PYTHON`/`-Python`, `python3`, `python`, then `py -3.x`) is run and must
+print a parseable version of at least 3.11. The `py` launcher is tried last because it reaches
+interpreters that are not on `PATH` at all, which is how this very machine resolves.
+
+### Shutdown signals the process group, not the child
+
+**Assumed:** Killing the process the script launched does not stop the server.
+
+**Why:** On Windows `npm` is itself a shell script, so `npm run dev` makes the Vite dev server a
+*grandchild*. Signalling the direct child orphaned Vite, which went on holding port 5173 — and Vite
+then silently binds 5174 on the next start while the banner still advertises 5173. `start.sh` now
+runs each server in its own process group (`set -m`) and signals the group; `start.ps1` uses
+`taskkill /T`. Both were verified to leave no survivor and no held port.
+
+**Also:** if either server stops, the script now stops the other. A crashed API previously left a
+console still serving, which looks healthy and is the most misleading state available.
+
+### An existing virtual environment is not assumed to contain pip
+
+**Assumed:** `.venv` may exist without pip.
+
+**Why:** `uv venv` omits pip by default, as does `python -m venv --without-pip`. A fresh clone that
+follows the README gets pip, so this only bites someone who made the environment another way — which
+is exactly what happened on the development machine. The scripts now probe for pip and bootstrap it
+with `ensurepip` rather than failing with `No module named pip`.
+
+### The scripts report the interpreter that actually runs the API
+
+**Assumed:** The interpreter used to *create* a virtual environment is not necessarily the one
+inside it.
+
+**Why:** An existing `.venv` can be any version. The scripts print the discovered interpreter when
+creating an environment and, separately, the version found inside the environment that will serve
+requests. Reporting only the first would have claimed "Python 3.11" while 3.12.12 served every
+request.
+
 ### Account balances follow the account holder's view, not ledger signage
 
 **Assumed:** The `balance` column is what the account holder would recognise as "how much is in
@@ -272,5 +320,11 @@ startup. Structured logging must never be able to do that.
   exact counts depend on the seed order. Counts are asserted as minimums, not exact values.
 - **The scheduler is single-process.** It is durable and restart-safe but does not coordinate across
   replicas.
+- **The start scripts were verified on Windows only.** `start.sh` was run under Git Bash and
+  `start.ps1` under PowerShell 5.1, each from a clean clone and from a path containing spaces: first
+  run, warm restart, interpreter discovery, failure messages and shutdown. The POSIX branches of
+  `start.sh` (the `.venv/bin` layout, `wait -n` on bash 4.3+, the `wait` fallback for the bash 3.2
+  that ships with macOS) are written but have not been run on macOS or Linux. The Docker path is
+  verified on Linux containers and is the better-tested route there.
 - **The scheduler is not exercised under load.** It is correct for one operator's console; nobody has
   run a thousand concurrent payments through it.

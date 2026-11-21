@@ -20,7 +20,12 @@ dependencies = [
 dev = [
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
-    "ruff>=0.8.0",
+    # Upper-bounded deliberately. A linter with an open upper bound means a
+    # future release can fail the build on code nobody touched: ruff 0.17
+    # reclassified this project's own `alembic/` directory as first-party and
+    # turned three previously clean files into I001 errors. Raise the bound on
+    # purpose, not by surprise.
+    "ruff>=0.8.0,<0.18",
     "mypy>=1.13.0",
     # Required by starlette's TestClient.
     "httpx>=0.28.0",

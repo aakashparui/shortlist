@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 
+from alembic import context
 from app.core.config import settings
 from app.db.models import Base
 from app.db.session import build_engine
