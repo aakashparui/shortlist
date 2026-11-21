@@ -1,0 +1,173 @@
+/* ---------------------------------------------------------------------------
+   Design tokens.
+
+   Visual language: financial infrastructure software. Dense information, thin
+   1px rules instead of cards, near-square corners, one accent colour, and
+   colour used only to carry meaning (status, severity, debit/credit). No
+   gradients as a primary device, no decorative illustration, no oversized type.
+   --------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  /* surfaces: a graphite stack, each step ~4% lighter */
+  --surface-0: #0c0e12;
+  --surface-1: #11141a;
+  --surface-2: #161a21;
+  --surface-3: #1c2129;
+  --surface-4: #232935;
+  --surface-raised: #1a1f27;
+  --surface-sunken: #090b0e;
+  --surface-input: #0e1116;
+
+  /* rules and borders */
+  --line-strong: #2e3542;
+  --line: #242b35;
+  --line-soft: #1b212a;
+  --line-accent: #3d5a80;
+
+  /* text */
+  --text-primary: #e6eaf0;
+  --text-secondary: #a3adbd;
+  --text-tertiary: #717d8f;
+  --text-disabled: #4c5565;
+  --text-inverse: #0c0e12;
+
+  /* one accent, used sparingly */
+  --accent: #4d8fd6;
+  --accent-strong: #6aa6e6;
+  --accent-dim: #2b4f78;
+  --accent-wash: rgba(77, 143, 214, 0.12);
+  --accent-wash-strong: rgba(77, 143, 214, 0.2);
+
+  /* semantic status */
+  --ok: #4caf7d;
+  --ok-wash: rgba(76, 175, 125, 0.12);
+  --warn: #d9a23b;
+  --warn-wash: rgba(217, 162, 59, 0.12);
+  --error: #d9534f;
+  --error-wash: rgba(217, 83, 79, 0.12);
+  --info: #4d8fd6;
+  --info-wash: rgba(77, 143, 214, 0.12);
+  --neutral: #717d8f;
+  --neutral-wash: rgba(113, 125, 143, 0.12);
+  --investigate: #9b7fd4;
+  --investigate-wash: rgba(155, 127, 212, 0.14);
+  --pending: #5d6b7f;
+  --pending-wash: rgba(93, 107, 127, 0.12);
+
+  /* ledger sides */
+  --debit: #e08a6a;
+  --credit: #6ab0a0;
+
+  /* type */
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", "Consolas", ui-monospace, monospace;
+
+  --fs-micro: 10px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-base: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 19px;
+  --fs-2xl: 23px;
+
+  --lh-tight: 1.25;
+  --lh-normal: 1.45;
+  --lh-relaxed: 1.6;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* spacing: 4px base */
+  --s-1: 2px;
+  --s-2: 4px;
+  --s-3: 6px;
+  --s-4: 8px;
+  --s-5: 12px;
+  --s-6: 16px;
+  --s-7: 20px;
+  --s-8: 24px;
+  --s-9: 32px;
+  --s-10: 40px;
+
+  /* geometry */
+  --radius-sm: 2px;
+  --radius: 3px;
+  --radius-md: 4px;
+
+  /* chrome */
+  --nav-width: 232px;
+  --nav-width-collapsed: 52px;
+  --topbar-height: 44px;
+  --statusbar-height: 26px;
+
+  --shadow-panel: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  --focus-ring: 0 0 0 2px var(--surface-0), 0 0 0 4px var(--accent);
+
+  --motion-fast: 90ms;
+  --motion: 150ms;
+  --easing: cubic-bezier(0.2, 0, 0.3, 1);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --surface-0: #f4f5f7;
+  --surface-1: #fbfbfc;
+  --surface-2: #ffffff;
+  --surface-3: #f1f3f6;
+  --surface-4: #e7eaef;
+  --surface-raised: #ffffff;
+  --surface-sunken: #eceef2;
+  --surface-input: #ffffff;
+
+  --line-strong: #c3cad4;
+  --line: #d9dee6;
+  --line-soft: #e7eaef;
+  --line-accent: #9dbbdd;
+
+  --text-primary: #16181d;
+  --text-secondary: #4d5668;
+  --text-tertiary: #6f7889;
+  --text-disabled: #a4acba;
+  --text-inverse: #ffffff;
+
+  --accent: #22609f;
+  --accent-strong: #184d84;
+  --accent-dim: #a9c4e0;
+  --accent-wash: rgba(34, 96, 159, 0.08);
+  --accent-wash-strong: rgba(34, 96, 159, 0.14);
+
+  --ok: #1d7a4d;
+  --ok-wash: rgba(29, 122, 77, 0.1);
+  --warn: #9a6b11;
+  --warn-wash: rgba(154, 107, 17, 0.1);
+  --error: #ad2e2a;
+  --error-wash: rgba(173, 46, 42, 0.1);
+  --info: #22609f;
+  --info-wash: rgba(34, 96, 159, 0.1);
+  --neutral: #5f6878;
+  --neutral-wash: rgba(95, 104, 120, 0.1);
+  --investigate: #6b48ad;
+  --investigate-wash: rgba(107, 72, 173, 0.1);
+  --pending: #70798a;
+  --pending-wash: rgba(112, 121, 138, 0.1);
+
+  --debit: #a9542f;
+  --credit: #15705f;
+
+  --shadow-panel: 0 8px 24px rgba(16, 24, 40, 0.14);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion: 0ms;
+  }
+}

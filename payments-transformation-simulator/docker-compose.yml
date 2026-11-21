@@ -1,0 +1,56 @@
+name: payments-transformation-simulator
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: simulator
+      # Local-only credentials for a simulator with fictional data. Override
+      # POSTGRES_PASSWORD and DATABASE_URL for any non-local use.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simulator}
+      POSTGRES_DB: simulator
+    volumes:
+      - simulator-db:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U simulator -d simulator']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://simulator:${POSTGRES_PASSWORD:-simulator}@db:5432/simulator
+      ENVIRONMENT: docker
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FORMAT: json
+      DEMO_MODE: ${DEMO_MODE:-true}
+      AUTO_SEED: 'true'
+      SIMULATION_SPEED_FACTOR: ${SIMULATION_SPEED_FACTOR:-5}
+      SCHEDULER_ENABLED: 'true'
+      CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '${API_PORT:-8000}:8000'
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '${UI_PORT:-8080}:80'
+    restart: unless-stopped
+
+volumes:
+  simulator-db:

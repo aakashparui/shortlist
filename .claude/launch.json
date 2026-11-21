@@ -9,9 +9,45 @@
     {
       "name": "shortlist-web-standalone",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "studyquest",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "studyquest",
+        "run",
+        "dev"
+      ],
+      "port": 5180
+    },
+    {
+      "name": "studyquest-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "studyquest",
+        "run",
+        "preview"
+      ],
+      "port": 5181
+    },
+    {
+      "name": "payments-simulator-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "payments-transformation-simulator/frontend",
+        "run",
+        "dev"
+      ],
+      "port": 5173
     }
   ]
 }
