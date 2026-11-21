@@ -249,3 +249,15 @@ startup. Structured logging must never be able to do that.
   exact counts depend on the seed order. Counts are asserted as minimums, not exact values.
 - **The scheduler is single-process.** It is durable and restart-safe but does not coordinate across
   replicas.
+- **The Docker path has not been run end to end.** No Docker daemon was available on the development
+  machine. What *is* verified: `docker compose config` validates; the backend image's
+  `pip install .` resolves and the app imports and builds from the resulting wheel in a clean
+  environment; the frontend's `npm run build` succeeds; and a `.dockerignore` keeps host-built
+  `node_modules` and `.venv` out of the build context, which would otherwise have put
+  Windows-built binaries into a Linux image. What is **not** verified: the image builds themselves,
+  the containers starting, Nginx proxying to the API, and the PostgreSQL path. Everything was run
+  and tested against SQLite.
+- **PostgreSQL is unexercised.** The `Money` column type has a `NUMERIC(20,4)` branch that has never
+  executed, and the migration has only ever been applied to SQLite. The migration does render the
+  portable `app.db.types.Money` / `UTCDateTime` types rather than SQLite-specific ones, so it should
+  apply, but nothing has proved it.

@@ -3,6 +3,8 @@ name = "payments-transformation-simulator-backend"
 version = "1.0.0"
 description = "Payments Transformation Simulator - payment lifecycle, ISO 20022, clearing, settlement, accounting and reconciliation simulation engine"
 requires-python = ">=3.11"
+# Runtime dependencies only. ISO 20022 messages are built with the standard
+# library's ElementTree, so no XML package is required.
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
@@ -12,8 +14,6 @@ dependencies = [
     "pydantic-settings>=2.6.0",
     "python-dotenv>=1.0.1",
     "psycopg[binary]>=3.2.3; sys_platform != 'emscripten'",
-    "httpx>=0.28.0",
-    "lxml>=5.3.0",
 ]
 
 [project.optional-dependencies]
@@ -22,6 +22,8 @@ dev = [
     "pytest-cov>=6.0.0",
     "ruff>=0.8.0",
     "mypy>=1.13.0",
+    # Required by starlette's TestClient.
+    "httpx>=0.28.0",
 ]
 
 [build-system]

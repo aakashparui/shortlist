@@ -14,19 +14,10 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends libpq5 curl \
  && rm -rf /var/lib/apt/lists/*
 
-# Dependencies first, so a code change does not invalidate the layer.
-COPY backend/pyproject.toml ./
-RUN pip install --no-cache-dir \
-      "fastapi>=0.115.0" \
-      "uvicorn[standard]>=0.32.0" \
-      "sqlalchemy>=2.0.36" \
-      "alembic>=1.14.0" \
-      "pydantic>=2.10.0" \
-      "pydantic-settings>=2.6.0" \
-      "python-dotenv>=1.0.1" \
-      "psycopg[binary]>=3.2.3"
-
+# Install from pyproject.toml rather than a list repeated here, so the image
+# cannot drift from the project's declared runtime dependencies.
 COPY backend/ ./
+RUN pip install --no-cache-dir .
 
 # Run as an unprivileged user.
 RUN useradd --create-home --uid 10001 simulator \

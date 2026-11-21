@@ -372,6 +372,15 @@ Brings up PostgreSQL 16, the API (migrated and seeded on start) and the UI behin
 | http://localhost:8080 | Operations console        |
 | http://localhost:8000/docs | API documentation    |
 
+> **Not yet run end to end.** The compose file and both Dockerfiles are written and
+> `docker compose config` validates, the backend image's `pip install .` step is verified in a
+> clean environment, and the frontend's `npm run build` is verified — but the images have not been
+> built and the stack has not been started, because no Docker daemon was available on the machine
+> this was developed on. The **PostgreSQL path is therefore unexercised**: everything was run and
+> tested against SQLite. The Alembic migration emits the portable `Money` / `UTCDateTime` types
+> rather than SQLite-specific ones, so it should apply cleanly to PostgreSQL, but that is reasoning
+> rather than evidence. Treat the local setup above as the supported path until someone runs this.
+
 ## Testing
 
 ```bash
@@ -545,14 +554,21 @@ and the runner compares all of it against what the engine actually did.
 
 ## Screens
 
-| Screen | What it shows |
-| ------ | ------------- |
-| ![Control room](docs/screenshots/control-room.png) | Operational posture, queues, demo launchers |
-| ![Payment journey](docs/screenshots/payment-journey.png) | The lifecycle as a process graph with per-stage detail |
-| ![Failure report](docs/screenshots/failure-report.png) | What happened / where / why / expected / actual / next action |
-| ![Message viewer](docs/screenshots/message-viewer.png) | Business, payload, mapping, validation and timeline views |
-| ![Reconciliation](docs/screenshots/reconciliation.png) | The four legs side by side with the probable cause |
-| ![BA workbench](docs/screenshots/ba-workbench.png) | Requirements and the traceability matrix |
+No screenshots are committed — they would date on the first UI change, and the app seeds itself so
+every screen below is one command away. Run it and follow [the five-minute
+tour](#a-five-minute-tour).
+
+| Screen | Route | What it shows |
+| ------ | ----- | ------------- |
+| Control room | `/` | Operational posture, the queues that need a person, demo launchers |
+| Payment journey | `/payments/{ref}` | The lifecycle as a process graph, each stage expandable to what it actually did |
+| Failure report | `/payments/{ref}` on a failed payment | What happened, where, why, expected vs actual, the message produced, the state entered, the next action |
+| Message viewer | `/payments/{ref}?tab=messages` | One message in five views: business, payload, field mapping, field validation, timeline |
+| Reconciliation | `/reconciliation/{ref}` | The four legs side by side, the difference, the probable cause and the recommended action |
+| MT → MX mapping | `/messages/mt-mx` | Field-level MT103 ↔ pacs.008 with each row classified |
+| BA workbench | `/ba` | Requirement chain and the traceability matrix |
+
+To add screenshots, drop them in `docs/screenshots/` and link them from this table.
 
 ## Known limitations
 
