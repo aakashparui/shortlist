@@ -43,21 +43,35 @@
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
 }
+/* The wordmark is two stacked lines. This has to be an explicit block or flex
+   container: `.brand-text` is a <span>, and `min-width` does nothing on a
+   non-replaced inline element, so the name and the subtitle used to run side
+   by side on one line and get sliced off by `.brand`'s overflow. */
 .brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
+  line-height: 1.25;
+}
+/* Both lines are nowrap, so if the column is ever narrower than the wordmark
+   they ellipsise rather than being cut mid-glyph. */
+.brand-name,
+.brand-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .brand-name {
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
   letter-spacing: 0.01em;
-  white-space: nowrap;
 }
 .brand-sub {
   font-size: var(--fs-micro);
   color: var(--text-tertiary);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .topbar {
