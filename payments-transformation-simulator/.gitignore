@@ -1,0 +1,37 @@
+# environment — never commit real configuration
+.env
+.env.local
+*.env
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# local database
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# node
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# editors and os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

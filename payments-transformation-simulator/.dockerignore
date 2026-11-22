@@ -1,0 +1,47 @@
+# Keep the build context small and, more importantly, keep host-built
+# artefacts out of the images. Without this, `COPY frontend/ ./` would drop a
+# Windows/macOS node_modules on top of the Linux `npm ci` result.
+
+# dependencies and build output
+**/node_modules
+**/dist
+**/.vite
+**/.venv
+**/venv
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+**/*.tsbuildinfo
+
+# local database and data
+**/data
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/*.sqlite3
+
+# test and tool caches
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/.coverage
+**/htmlcov
+**/coverage.xml
+
+# environment: never bake real configuration into an image
+.env
+.env.*
+!.env.example
+
+# vcs, docs and editors — not needed at build time
+.git
+.gitignore
+.github
+.claude
+docs
+*.md
+!README.md
+.idea
+.vscode
+**/.DS_Store
+**/Thumbs.db
