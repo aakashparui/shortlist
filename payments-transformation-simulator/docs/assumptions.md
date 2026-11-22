@@ -139,6 +139,45 @@ creating an environment and, separately, the version found inside the environmen
 requests. Reporting only the first would have claimed "Python 3.11" while 3.12.12 served every
 request.
 
+### Identifier sequences are in-memory but primed from the database at startup
+
+**Assumed:** A counter in process memory is acceptable for `TXN-`, `INV-`, `RECON-`, `RUN-`, `ACC-`,
+`GL-` and `STMT-`, provided it is advanced past whatever is already stored before anything can
+allocate.
+
+**Why:** The counters were previously seeded from a hardcoded start value and never consulted the
+database, so they restarted with the process. Restarting against an existing book handed out
+`TXN-10002` to a database that already ran to `TXN-10034`, and payment creation died on
+`UNIQUE constraint failed: payment.reference`. The same applied to investigations, reconciliation
+records and scenario executions. For the three sequences with no unique constraint — `ACC`, `GL`,
+`STMT` — the consequence was worse than a failure: a silently duplicated reference in a tool whose
+entire purpose is tracing one artefact back to one payment.
+
+`app.db.bootstrap.prime_sequences` now reads the highest stored value for each prefix and advances
+the counter past it, before seeding and regardless of whether seeding runs. Priming only ever moves
+a sequence forward, so it is idempotent.
+
+**Why not a sequence table:** allocation stays a dictionary lookup under a lock rather than a write
+per identifier, and a single-process application gains nothing from the extra round trip. This is
+the same single-process assumption the scheduler already documents.
+
+**Would change if:** The application ran more than one process or replica. Two processes would prime
+to the same value and then collide, so this would become a durable sequence table or a database
+sequence — the allocation point is already a single function.
+
+**Mitigation:** The suffixes are parsed in Python rather than taken from SQL `max()`, because these
+references are strings and a lexicographic maximum prefers `TXN-9999` over `TXN-10001`.
+`backend/tests/test_identifier_sequences.py` asserts that every prefix in `SEQUENCE_STARTS` has a
+source column in `SEQUENCE_SOURCES`, so a new generator cannot be added without being primed — that
+drift is what would reintroduce the bug. One test deliberately reproduces the collision *without*
+priming, so the others cannot pass for the wrong reason on a fresh database.
+
+**Found by:** using the console. Every test in the suite starts from an empty database, where a
+sequence that restarts from its start value is indistinguishable from a correct one. Neither the
+Docker verification (which used `down -v` each time) nor the start-script verification caught it,
+because both created payments in the same process that had just seeded the book — and seeding had
+already advanced the counters past the collision.
+
 ### Account balances follow the account holder's view, not ledger signage
 
 **Assumed:** The `balance` column is what the account holder would recognise as "how much is in
